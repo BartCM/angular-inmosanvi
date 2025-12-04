@@ -1,2 +1,21 @@
+.property-card .btn-delete {
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  background-color: #b91c1c; /* red-700 */
+  color: white;
+  border-radius: 9999px;
+  width: 1.7rem;
+  height: 1.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.property-card .btn-delete:hover {
+  background-color: #dc2626; /* red-600 */
+}
 
 

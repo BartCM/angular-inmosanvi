@@ -29,15 +29,12 @@ export class PropertiesPageComponent {
     mainPhoto: ''
   };
 
-  /** Para limpiar el input file (ngModel requiere un valor) */
   filename: string = '';
 
-  /** ID incremental para cada propiedad añadida */
   private nextId = 1;
 
   /**
    * Lee el archivo de imagen seleccionado y lo convierte a Base64.
-   * Guardamos el resultado en newProperty.mainPhoto.
    */
   changeImage(fileInput: HTMLInputElement) {
     if (!fileInput.files || fileInput.files.length === 0) {
@@ -71,7 +68,6 @@ export class PropertiesPageComponent {
 
     this.properties.push(propertyToAdd);
 
-    // Reset
     this.newProperty = {
       province: '',
       town: '',
@@ -89,9 +85,6 @@ export class PropertiesPageComponent {
     this.#cdr.markForCheck();
   }
 
-  /**
-   * Elimina una propiedad según su ID
-   */
   deleteProperty(id?: number) {
     if (id == null) return;
     this.properties = this.properties.filter(p => p.id !== id);

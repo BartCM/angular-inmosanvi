@@ -132,7 +132,7 @@
 
       @for (property of properties; track property.id) {
 
-        <div class="property-card">
+        <div class="property-card relative">
 
           <!-- Botón rojo flotante -->
           <button class="btn-delete" (click)="deleteProperty(property.id)">
@@ -140,7 +140,7 @@
           </button>
 
           <!-- Imagen -->
-          <img [src]="property.mainPhoto">
+          <img [src]="property.mainPhoto"  class="w-full aspect-[16/10] object-cover">
 
           <!-- Contenido -->
           <div class="p-6 flex flex-col grow">
@@ -160,6 +160,5 @@
       }
 
     </div>
-
   }
 </section>
