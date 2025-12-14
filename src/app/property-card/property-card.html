@@ -1,0 +1,35 @@
+<div class="property-card">
+
+  <!-- Botón rojo flotante -->
+  <button class="btn-delete" (click)="delete()">
+    X
+  </button>
+
+  <!-- Imagen -->
+  @if (property?.mainPhoto) {
+    <img [src]="property!.mainPhoto" class="property-img" />
+  } @else {
+    <div class="property-no-img">
+      No image
+    </div>
+  }
+
+  <!-- Contenido -->
+  <div class="p-6 flex flex-col grow">
+    <h3>{{ property?.title }}</h3>
+    <p class="grow">{{ property?.town }}, {{ property?.province }}</p>
+
+    <!-- FORMATO CORRECTO DEL PRECIO -->
+    <p class="price">
+      {{ property?.price ?? 0 | intlCurrency:'EUR':'en-US':0 }}
+    </p>
+
+    <div class="stats">
+      <span>{{ property?.sqmeters }} sqm</span>
+      <span>{{ property?.numRooms }} beds</span>
+      <span>{{ property?.numBaths }} baths</span>
+    </div>
+  </div>
+
+</div>
+

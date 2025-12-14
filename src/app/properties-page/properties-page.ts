@@ -1,93 +1,52 @@
-import { Component, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 import { Property } from '../models/property';
+import { PropertyFormComponent } from '../property-form/property-form';
+import { PropertyCardComponent } from '../property-card/property-card';
 
 @Component({
   selector: 'properties-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,            // Necesario para ngModel en los filtros
+    PropertyFormComponent,
+    PropertyCardComponent
+  ],
   templateUrl: './properties-page.html',
   styleUrl: './properties-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PropertiesPageComponent {
 
-  /** Necesario para zoneless Angular */
-  #cdr = inject(ChangeDetectorRef);
+  /** Lista de propiedades como SIGNAL */
+  properties = signal<Property[]>([]);
 
-  properties: Property[] = [];
+  /** Filtros como signals */
+  search = signal('');
+  filterProvince = signal('');
 
-  newProperty: Property = {
-    province: '',
-    town: '',
-    address: '',
-    title: '',
-    price: 0,
-    sqmeters: 0,
-    numRooms: 0,
-    numBaths: 0,
-    mainPhoto: ''
-  };
+  /** Lista filtrada */
+  filteredProperties = computed(() => {
+    const s = this.search().toLowerCase().trim();
+    const p = this.filterProvince();
+    const props = this.properties();
 
-  filename: string = '';
+    return props.filter(pr =>
+      (pr.title.toLowerCase().includes(s) || pr.address.toLowerCase().includes(s)) &&
+      (p === '' || pr.province === p)
+    );
+  });
 
-  private nextId = 1;
-
-  /**
-   * Lee el archivo de imagen seleccionado y lo convierte a Base64.
-   */
-  changeImage(fileInput: HTMLInputElement) {
-    if (!fileInput.files || fileInput.files.length === 0) {
-      this.newProperty.mainPhoto = '';
-      return;
-    }
-
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-
-    reader.onloadend = () => {
-      this.newProperty.mainPhoto = reader.result as string;
-      this.#cdr.markForCheck(); // necesario en Angular zoneless
-    };
+  /** Añadida desde property-form */
+  addProperty(prop: Property) {
+    this.properties.update(list => [...list, prop]);
   }
 
-  /**
-   * Acción al enviar el formulario.
-   * - Clona la propiedad
-   * - Le asigna un ID
-   * - La añade al array
-   * - Resetea formulario + imagen
-   */
-  onSubmit(form: any) {
-
-    const propertyToAdd: Property = {
-      ...this.newProperty,
-      id: this.nextId++
-    };
-
-    this.properties.push(propertyToAdd);
-
-    this.newProperty = {
-      province: '',
-      town: '',
-      address: '',
-      title: '',
-      price: 0,
-      sqmeters: 0,
-      numRooms: 0,
-      numBaths: 0,
-      mainPhoto: ''
-    };
-
-    this.filename = '';
-    form.resetForm();
-    this.#cdr.markForCheck();
-  }
-
-  deleteProperty(id?: number) {
-    if (id == null) return;
-    this.properties = this.properties.filter(p => p.id !== id);
-    this.#cdr.markForCheck();
+  /** Eliminada desde property-card */
+  deleteProperty(id: number) {
+    this.properties.update(list => list.filter(p => p.id !== id));
   }
 }
