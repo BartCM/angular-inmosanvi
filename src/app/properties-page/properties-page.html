@@ -21,9 +21,11 @@
       (ngModelChange)="filterProvince.set($event)"
     >
       <option value="">All provinces</option>
-      <option>Madrid</option>
-      <option>Barcelona</option>
-      <option>Valencia</option>
+      @for (province of provincesResource.value()?.provinces;; track province.id) {
+        <option [value]="province.name">
+          {{province.name}}
+        </option>
+      }
     </select>
 
   </div>

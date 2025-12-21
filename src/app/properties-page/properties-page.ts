@@ -1,17 +1,26 @@
-import { Component, ChangeDetectionStrategy, computed, signal } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { Property } from '../models/property';
 import { PropertyFormComponent } from '../property-form/property-form';
 import { PropertyCardComponent } from '../property-card/property-card';
+import { PropertiesService } from '../services/properties.service';
+import { PropertyInsert } from '../models/property-insert';
+import { Property } from '../models/property';
+import { ProvincesService } from '../services/provinces.service';
 
 @Component({
   selector: 'properties-page',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,            // Necesario para ngModel en los filtros
+    FormsModule,
     PropertyFormComponent,
     PropertyCardComponent
   ],
@@ -21,12 +30,18 @@ import { PropertyCardComponent } from '../property-card/property-card';
 })
 export class PropertiesPageComponent {
 
-  /** Lista de propiedades como SIGNAL */
-  properties = signal<Property[]>([]);
+  private propertiesService = inject(PropertiesService);
+  private provincesService = inject(ProvincesService);
 
-  /** Filtros como signals */
+  provincesResource = this.provincesService.provincesResource;
+
+  /** Filtros */
   search = signal('');
   filterProvince = signal('');
+
+  /** Resource del backend */
+  properties = computed(() => 
+    this.propertiesService.propertiesResource.value()?.properties ?? []);
 
   /** Lista filtrada */
   filteredProperties = computed(() => {
@@ -34,19 +49,24 @@ export class PropertiesPageComponent {
     const p = this.filterProvince();
     const props = this.properties();
 
-    return props.filter(pr =>
-      (pr.title.toLowerCase().includes(s) || pr.address.toLowerCase().includes(s)) &&
-      (p === '' || pr.province === p)
+    return props.filter((pr: Property) =>
+      (pr.title.toLowerCase().includes(s) ||
+       pr.description.toLowerCase().includes(s)) &&
+      (p === '' || pr.town.province.name === p)
     );
   });
 
-  /** Añadida desde property-form */
-  addProperty(prop: Property) {
-    this.properties.update(list => [...list, prop]);
+  /** Añadir propiedad (backend) */
+  addProperty(prop: PropertyInsert) {
+    this.propertiesService.addProperty(prop).subscribe(() => {
+      this.propertiesService.reloadProperties();
+    });
   }
 
-  /** Eliminada desde property-card */
+  /** Eliminar propiedad (backend) */
   deleteProperty(id: number) {
-    this.properties.update(list => list.filter(p => p.id !== id));
+    this.propertiesService.deleteProperty(id).subscribe(() => {
+      this.propertiesService.reloadProperties();
+    });
   }
 }

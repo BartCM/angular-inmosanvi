@@ -1,85 +1,88 @@
-import { Component, EventEmitter, Output, ChangeDetectionStrategy, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  ChangeDetectionStrategy,
+  signal,
+  effect,
+  inject
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef } from '@angular/core';
-import { Property } from '../models/property';
+import { FormsModule } from '@angular/forms';
+
+import { PropertyInsert } from '../models/property-insert';
+import { EncodeBase64Directive } from '../directives/encode-base64.directive';
+import { ProvincesService } from '../services/provinces.service';
 
 @Component({
   selector: 'property-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, EncodeBase64Directive],
   templateUrl: './property-form.html',
   styleUrl: './property-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PropertyFormComponent {
 
-  @Output() added = new EventEmitter<Property>();
+  private provincesService = inject(ProvincesService);
 
-  /** Modelo del formulario */
-  newProperty: Property = {
-    id: undefined,
-    province: '',
-    town: '',
-    address: '',
+  /** Signal con la provincia seleccionada */
+  provinceId = signal(0);
+
+  /** Provincias (HttpResource) */
+  provincesResource = this.provincesService.provincesResource;
+
+  /** Towns dependientes de la provincia */
+  townsResource = this.provincesService.getTownsResource(this.provinceId);
+
+  /** Modelo del formulario (sin id) */
+  newProperty: PropertyInsert = {
     title: '',
+    description: '',
+    address: '',
     price: 0,
     sqmeters: 0,
     numRooms: 0,
     numBaths: 0,
+    townId: 0,
     mainPhoto: ''
   };
 
-  /** Para limpiar el input file */
-  filename: string = '';
+  /** Emitimos al padre */
+  @Output() added = new EventEmitter<PropertyInsert>();
 
-  #cdr = inject(ChangeDetectorRef);
-
-  /** Convierte la imagen a Base64 */
-  changeImage(fileInput: HTMLInputElement) {
-    if (!fileInput.files || fileInput.files.length === 0) {
-      this.newProperty.mainPhoto = '';
-      this.#cdr.markForCheck();
-      return;
-    }
-
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-
-    reader.onloadend = () => {
-      this.newProperty.mainPhoto = reader.result as string;
-      this.#cdr.markForCheck();
-    };
+  constructor() {
+    // Cuando cambia la provincia, resetear townId
+    effect(() => {
+      this.provinceId();
+      this.newProperty.townId = 0;
+    });
   }
 
-  /** Envía la propiedad al padre y resetea el formulario */
-  onSubmit(form: any) {
-    const property: Property = {
-      ...this.newProperty,
-      id: Date.now()
-    };
+  /** Recibe Base64 desde la directiva */
+  onImageEncoded(base64: string) {
+    this.newProperty.mainPhoto = base64;
+  }
 
-    this.added.emit(property);
+  /** Envío del formulario */
+    onSubmit(form: any) {
 
-    // reset
+    this.added.emit(this.newProperty);
+
     this.newProperty = {
-      id: undefined,
-      province: '',
-      town: '',
-      address: '',
       title: '',
+      description: '',
+      address: '',
       price: 0,
       sqmeters: 0,
       numRooms: 0,
       numBaths: 0,
+      townId: 0,
       mainPhoto: ''
     };
 
-    this.filename = '';
+    this.provinceId.set(0);
     form.resetForm();
-    this.#cdr.markForCheck();
   }
+
 }
-
-
