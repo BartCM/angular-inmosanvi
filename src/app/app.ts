@@ -6,7 +6,6 @@ import { PropertiesPageComponent } from './properties-page/properties-page';
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet,
     PropertiesPageComponent
   ],
   templateUrl: './app.html',

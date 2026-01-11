@@ -52,21 +52,15 @@ export class PropertiesPageComponent {
     return props.filter((pr: Property) =>
       (pr.title.toLowerCase().includes(s) ||
        pr.description.toLowerCase().includes(s)) &&
-      (p === '' || pr.town.province.name === p)
+      (p === '' || pr.town.province.name.toLocaleLowerCase() === p)
     );
   });
 
-  /** Añadir propiedad (backend) */
-  addProperty(prop: PropertyInsert) {
-    this.propertiesService.addProperty(prop).subscribe(() => {
-      this.propertiesService.reloadProperties();
-    });
+    addProperty(prop: PropertyInsert) {
+    this.propertiesService.addProperty(prop).subscribe();
   }
 
-  /** Eliminar propiedad (backend) */
   deleteProperty(id: number) {
-    this.propertiesService.deleteProperty(id).subscribe(() => {
-      this.propertiesService.reloadProperties();
-    });
+    this.propertiesService.deleteProperty(id).subscribe();
   }
 }

@@ -1,13 +1,20 @@
 <div class="property-card">
 
-  <!-- Botón rojo flotante -->
-  <button class="btn-delete" (click)="delete()">
-    X
+  <!-- Botón eliminar -->
+  <button
+    type="button"
+    class="btn-delete"
+    (click)="delete()">
+    ✕
   </button>
 
   <!-- Imagen -->
-  @if (property?.mainPhoto) {
-    <img [src]="property!.mainPhoto" class="property-img" />
+  @if (property().mainPhoto) {
+    <img
+      [src]="property().mainPhoto"
+      class="property-img"
+      alt="Property image"
+    />
   } @else {
     <div class="property-no-img">
       No image
@@ -16,19 +23,24 @@
 
   <!-- Contenido -->
   <div class="p-6 flex flex-col grow">
-    <h3>{{ property?.title }}</h3>
-    <p class="grow">{{ property?.address }}</p>
+
+    <h3>{{ property().title }}</h3>
+
+    <p class="grow">
+      {{ property().town.name }},
+      {{ property().town.province.name }}
+    </p>
 
     <p class="price">
-      {{ property?.price ?? 0 | intlCurrency:'EUR':'en-US':0 }}
+      {{ property().price | intlCurrency:'EUR':'en-GB':0 }}
     </p>
 
     <div class="stats">
-      <span>{{ property?.sqmeters }} sqm</span>
-      <span>{{ property?.numRooms }} beds</span>
-      <span>{{ property?.numBaths }} baths</span>
+      <span>{{ property().sqmeters }} sqm</span>
+      <span>{{ property().numRooms }} beds</span>
+      <span>{{ property().numBaths }} baths</span>
     </div>
+
   </div>
 
 </div>
-

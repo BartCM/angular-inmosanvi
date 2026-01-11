@@ -11,7 +11,14 @@
   "projects": {
     "angular-inmosanvi": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+            "@schematics/angular:component": {
+          "prefix": ""
+        },
+        "@schematics/angular:directive": {
+          "prefix": ""
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "",

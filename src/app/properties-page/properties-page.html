@@ -21,11 +21,13 @@
       (ngModelChange)="filterProvince.set($event)"
     >
       <option value="">All provinces</option>
-      @for (province of provincesResource.value()?.provinces;; track province.id) {
+
+      @for (province of provincesResource.value()?.provinces; track province.id) {
         <option [value]="province.name">
-          {{province.name}}
+          {{ province.name }}
         </option>
       }
+
     </select>
 
   </div>
@@ -33,7 +35,7 @@
 </section>
 
 
-<!-- FORMULARIO (COMPONENTE HIJO) -->
+<!-- FORMULARIO -->
 <property-form (added)="addProperty($event)"></property-form>
 
 
@@ -42,25 +44,23 @@
 
   <h2 class="text-2xl font-bold text-gray-800 mb-6">Properties for Sale</h2>
 
-  @if (filteredProperties().length === 0) {
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-    <p class="text-xl text-gray-500">No properties found.</p>
+    @for (property of filteredProperties(); track property.id) {
 
-  } @else {
+      <property-card
+        [property]="property"
+        (deleted)="deleteProperty($event)">
+      </property-card>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    } @empty {
 
-      @for (property of filteredProperties(); track property.id) {
+      <p class="text-xl text-gray-500 col-span-full">
+        No properties found.
+      </p>
 
-        <property-card
-          [property]="property"
-          (deleted)="deleteProperty($event)">
-        </property-card>
+    }
 
-      }
-
-    </div>
-
-  }
+  </div>
 
 </section>

@@ -1,18 +1,17 @@
 import {
   Component,
-  EventEmitter,
-  Output,
   ChangeDetectionStrategy,
   signal,
   effect,
   inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 
 import { PropertyInsert } from '../models/property-insert';
 import { EncodeBase64Directive } from '../directives/encode-base64.directive';
 import { ProvincesService } from '../services/provinces.service';
+import { PropertiesService } from '../services/properties.service';
 
 @Component({
   selector: 'property-form',
@@ -25,17 +24,16 @@ import { ProvincesService } from '../services/provinces.service';
 export class PropertyFormComponent {
 
   private provincesService = inject(ProvincesService);
+  private propertiesService = inject(PropertiesService);
 
-  /** Signal con la provincia seleccionada */
+  /** Provincia seleccionada */
   provinceId = signal(0);
 
-  /** Provincias (HttpResource) */
+  /** Recursos */
   provincesResource = this.provincesService.provincesResource;
-
-  /** Towns dependientes de la provincia */
   townsResource = this.provincesService.getTownsResource(this.provinceId);
 
-  /** Modelo del formulario (sin id) */
+  /** Modelo del formulario */
   newProperty: PropertyInsert = {
     title: '',
     description: '',
@@ -48,26 +46,30 @@ export class PropertyFormComponent {
     mainPhoto: ''
   };
 
-  /** Emitimos al padre */
-  @Output() added = new EventEmitter<PropertyInsert>();
-
   constructor() {
-    // Cuando cambia la provincia, resetear townId
+    // Reset del town cuando cambia la provincia
     effect(() => {
       this.provinceId();
       this.newProperty.townId = 0;
     });
   }
 
-  /** Recibe Base64 desde la directiva */
+  /** Imagen en Base64 */
   onImageEncoded(base64: string) {
     this.newProperty.mainPhoto = base64;
   }
 
-  /** Envío del formulario */
-    onSubmit(form: any) {
+  /** Submit REAL (inserta en backend) */
+  onSubmit(form: NgForm) {
+    if (form.invalid) return;
 
-    this.added.emit(this.newProperty);
+    this.propertiesService
+      .addProperty(this.newProperty)
+      .subscribe();
+
+    // Reset del formulario
+    form.resetForm();
+    this.provinceId.set(0);
 
     this.newProperty = {
       title: '',
@@ -80,9 +82,5 @@ export class PropertyFormComponent {
       townId: 0,
       mainPhoto: ''
     };
-
-    this.provinceId.set(0);
-    form.resetForm();
   }
-
 }
