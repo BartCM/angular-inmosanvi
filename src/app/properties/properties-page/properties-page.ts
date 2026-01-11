@@ -8,12 +8,11 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { PropertyFormComponent } from '../property-form/property-form';
 import { PropertyCardComponent } from '../property-card/property-card';
-import { PropertiesService } from '../services/properties.service';
-import { PropertyInsert } from '../models/property-insert';
-import { Property } from '../models/property';
-import { ProvincesService } from '../services/provinces.service';
+import { PropertiesService } from '../../services/properties.service';
+import { Property } from '../../models/property';
+import { ProvincesService } from '../../services/provinces.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'properties-page',
@@ -21,7 +20,6 @@ import { ProvincesService } from '../services/provinces.service';
   imports: [
     CommonModule,
     FormsModule,
-    PropertyFormComponent,
     PropertyCardComponent
   ],
   templateUrl: './properties-page.html',
@@ -32,6 +30,7 @@ export class PropertiesPageComponent {
 
   private propertiesService = inject(PropertiesService);
   private provincesService = inject(ProvincesService);
+  private title = inject(Title);
 
   provincesResource = this.provincesService.provincesResource;
 
@@ -56,8 +55,8 @@ export class PropertiesPageComponent {
     );
   });
 
-    addProperty(prop: PropertyInsert) {
-    this.propertiesService.addProperty(prop).subscribe();
+  constructor() {
+    this.title.setTitle('Properties page');
   }
 
   deleteProperty(id: number) {

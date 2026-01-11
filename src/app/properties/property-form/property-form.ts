@@ -7,11 +7,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 
-import { PropertyInsert } from '../models/property-insert';
-import { EncodeBase64Directive } from '../directives/encode-base64.directive';
-import { ProvincesService } from '../services/provinces.service';
-import { PropertiesService } from '../services/properties.service';
+import { PropertyInsert } from '../../models/property-insert';
+import { EncodeBase64Directive } from '../../directives/encode-base64.directive';
+import { ProvincesService } from '../../services/provinces.service';
+import { PropertiesService } from '../../services/properties.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'property-form',
@@ -25,15 +27,21 @@ export class PropertyFormComponent {
 
   private provincesService = inject(ProvincesService);
   private propertiesService = inject(PropertiesService);
+  private router = inject(Router);
+  private title = inject(Title);
+
 
   /** Provincia seleccionada */
   provinceId = signal(0);
+
+  /** Indica si ya se ha creado la propiedad (CanDeactivate) */
+  created = signal(false);
 
   /** Recursos */
   provincesResource = this.provincesService.provincesResource;
   townsResource = this.provincesService.getTownsResource(this.provinceId);
 
-  /** Modelo del formulario */
+  /** Modelo */
   newProperty: PropertyInsert = {
     title: '',
     description: '',
@@ -47,40 +55,29 @@ export class PropertyFormComponent {
   };
 
   constructor() {
-    // Reset del town cuando cambia la provincia
+    this.title.setTitle('New property');
     effect(() => {
       this.provinceId();
       this.newProperty.townId = 0;
     });
   }
 
-  /** Imagen en Base64 */
   onImageEncoded(base64: string) {
     this.newProperty.mainPhoto = base64;
   }
 
-  /** Submit REAL (inserta en backend) */
+  /** Inserción REAL */
   onSubmit(form: NgForm) {
     if (form.invalid) return;
 
     this.propertiesService
       .addProperty(this.newProperty)
-      .subscribe();
+      .subscribe(property => {
+        //Marcamos como creada
+        this.created.set(true);
 
-    // Reset del formulario
-    form.resetForm();
-    this.provinceId.set(0);
-
-    this.newProperty = {
-      title: '',
-      description: '',
-      address: '',
-      price: 0,
-      sqmeters: 0,
-      numRooms: 0,
-      numBaths: 0,
-      townId: 0,
-      mainPhoto: ''
-    };
+        //Redirigimos al detalle
+        this.router.navigate(['/properties', property.id]);
+      });
   }
 }

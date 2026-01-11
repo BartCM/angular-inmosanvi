@@ -1,0 +1,8 @@
+@if (propertyResource.value()?.property; as property) {
+  <property-card
+    [property]="property"
+    (deleted)="onDelete($event)">
+  </property-card>
+} 
+
+

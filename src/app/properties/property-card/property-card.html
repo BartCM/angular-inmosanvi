@@ -1,0 +1,41 @@
+@if (property(); as p) {
+
+  <button class="btn-delete" (click)="delete()">✕</button>
+
+  @if (p.mainPhoto) {
+    <a [routerLink]="['/properties', p.id]">
+      <img
+        [src]="p.mainPhoto"
+        class="property-img cursor-pointer"
+        alt="Property image"
+      />
+    </a>
+  } @else {
+    <div class="property-no-img">No image</div>
+  }
+
+  <div class="p-6 flex flex-col grow">
+    <a
+      [routerLink]="['/properties', p.id]"
+      class="text-lg font-bold hover:underline"
+    >
+      {{ p.title }}
+    </a>
+
+    <p class="grow text-gray-600">
+      {{ p.town.name }},
+      {{ p.town.province.name }}
+    </p>
+
+    <p class="price text-xl font-semibold">
+      {{ p.price | currency:'EUR':'symbol':'1.0-0':'en-GB' }}
+    </p>
+
+    <div class="stats text-sm text-gray-500">
+      <span>{{ p.sqmeters }} sqm</span>
+      <span>{{ p.numRooms }} beds</span>
+      <span>{{ p.numBaths }} baths</span>
+    </div>
+  </div>
+
+}

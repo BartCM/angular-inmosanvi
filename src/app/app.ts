@@ -1,12 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PropertiesPageComponent } from './properties-page/properties-page';
+import { TopMenuComponent } from './top-menu/top-menu';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
-    PropertiesPageComponent
+    RouterOutlet, TopMenuComponent
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'

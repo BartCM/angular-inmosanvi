@@ -34,11 +34,6 @@
 
 </section>
 
-
-<!-- FORMULARIO -->
-<property-form (added)="addProperty($event)"></property-form>
-
-
 <!-- LISTADO -->
 <section class="mt-8">
 
@@ -46,11 +41,10 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-    @for (property of filteredProperties(); track property.id) {
+    @for (property of properties(); track property.id) {
 
       <property-card
-        [property]="property"
-        (deleted)="deleteProperty($event)">
+        [property]="property">
       </property-card>
 
     } @empty {

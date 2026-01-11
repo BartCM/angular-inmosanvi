@@ -1,8 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { httpResource } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, Observable, tap } from 'rxjs';
 
 import { PropertiesResponse } from '../models/responses/properties-response';
 import { SinglePropertyResponse } from '../models/responses/single-property-response';
@@ -11,34 +10,34 @@ import { Property } from '../models/property';
 
 @Injectable({ providedIn: 'root' })
 export class PropertiesService {
+  #http = inject(HttpClient);
 
-  private http = inject(HttpClient);
-
-  private readonly propertiesUrl = '/properties';
-
-  /** Resource principal */
   propertiesResource = httpResource<PropertiesResponse>(() => ({
-    url: this.propertiesUrl
+    url: '/properties',
   }));
 
-  /** INSERT */
   addProperty(property: PropertyInsert): Observable<Property> {
-    return this.http
-      .post<SinglePropertyResponse>(this.propertiesUrl, property)
-      .pipe(
-        map(resp => resp.property),
-        tap(() => this.propertiesResource.reload())
-      );
+    return this.#http.post<SinglePropertyResponse>('/properties', property).pipe(
+      map(resp => resp.property),
+      tap(() => this.propertiesResource.reload()),
+    );
   }
 
-  /** DELETE */
   deleteProperty(id: number): Observable<void> {
-    return this.http
-      .delete<void>(`${this.propertiesUrl}/${id}`)
-      .pipe(
-        tap(() => this.propertiesResource.reload())
-      );
+    return this.#http.delete<void>(`/properties/${id}`).pipe(
+      tap(() => this.propertiesResource.reload()),
+    );
+  }
+
+  // IMPORTANTE: devuelve la respuesta DEL BACKEND (SinglePropertyResponse)
+  getPropertyResource(id: Signal<number>) {
+    return httpResource<{ property: Property }>(() => {
+      const value = id();
+      if (!value) return undefined;
+
+      return {
+        url: `/properties/${value}`
+      };
+    });
   }
 }
-
-
